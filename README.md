@@ -5,6 +5,8 @@ A museum-quality, scientifically accurate, fully interactive 3D model of
 CID 1832), rendered in real time with WebGL / Three.js and built as a modular
 React + TypeScript + Vite application.
 
+**▶ Live demo: https://michaelcoley.github.io/molecule-5meo-dmt/**
+
 The geometry is the **authentic PubChem CID 1832 3D conformer** — atomic
 coordinates, elements, connectivity, bond orders and hydrogens are preserved
 exactly, never guessed from a 2D diagram. The structure is validated
