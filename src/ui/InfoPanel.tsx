@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import type { Molecule } from '../data/molecule';
-import { MOLECULE_META, atomLabel } from '../data/molecule';
+import { atomLabel } from '../data/molecule';
 import { elementInfo } from '../data/elements';
 import { Section } from './controls';
+import { FormulaText } from './FormulaText';
 import type { MeasureResult } from '../three/MoleculeViewer';
 
 interface Props {
@@ -16,29 +17,30 @@ interface Props {
 
 export function InfoPanel(props: Props) {
   const { molecule } = props;
+  const meta = molecule.meta;
   const v = molecule.validation;
   const [screenReaderOpen, setSR] = useState(false);
 
   return (
     <aside className="panel info-panel" aria-label="Molecular information">
       <header className="panel-head">
-        <h1>{MOLECULE_META.commonName}</h1>
-        <p className="subtitle">{MOLECULE_META.fullName}</p>
+        <h1>{meta.commonName}</h1>
+        <p className="subtitle">{meta.fullName}</p>
       </header>
 
       <Section title="Identity">
         <dl className="kv">
-          <div><dt>IUPAC</dt><dd>{MOLECULE_META.iupacName}</dd></div>
-          <div><dt>Formula</dt><dd className="formula">C<sub>13</sub>H<sub>18</sub>N<sub>2</sub>O</dd></div>
-          <div><dt>Mol. weight</dt><dd>{MOLECULE_META.molecularWeight} g/mol</dd></div>
+          <div><dt>IUPAC</dt><dd>{meta.iupacName}</dd></div>
+          <div><dt>Formula</dt><dd className="formula"><FormulaText formula={meta.formula} /></dd></div>
+          <div><dt>Mol. weight</dt><dd>{meta.molecularWeight} g/mol</dd></div>
           <div><dt>PubChem CID</dt><dd>
-            <a href={`https://pubchem.ncbi.nlm.nih.gov/compound/${MOLECULE_META.pubchemCID}`} target="_blank" rel="noreferrer">
-              {MOLECULE_META.pubchemCID}
+            <a href={`https://pubchem.ncbi.nlm.nih.gov/compound/${meta.pubchemCID}`} target="_blank" rel="noreferrer">
+              {meta.pubchemCID}
             </a>
           </dd></div>
-          <div><dt>InChIKey</dt><dd className="mono">{MOLECULE_META.inchiKey}</dd></div>
+          <div><dt>InChIKey</dt><dd className="mono">{meta.inchiKey}</dd></div>
           <div><dt>SMILES</dt><dd className="mono smiles">
-            {MOLECULE_META.canonicalSMILES}
+            {meta.canonicalSMILES}
             <button className="mini-btn" onClick={props.onCopySMILES}>{props.copied ? 'Copied ✓' : 'Copy'}</button>
           </dd></div>
         </dl>
@@ -95,17 +97,13 @@ export function InfoPanel(props: Props) {
         </button>
         {screenReaderOpen && (
           <p className="sr-desc">
-            {MOLECULE_META.commonName} is a serotonergic tryptamine. Its structure is a planar bicyclic
-            indole ring system (a benzene ring fused to a pyrrole ring bearing an N–H). A methoxy group
-            (–OCH₃) is attached at the 5-position of the benzene ring. At the 3-position of the pyrrole
-            ring a two-carbon ethyl chain connects to a tertiary amine nitrogen carrying two methyl
-            groups. The model contains {v.counts.total} atoms: {v.counts.C} carbon, {v.counts.H} hydrogen,{' '}
-            {v.counts.N} nitrogen and {v.counts.O} oxygen.
+            {meta.srDescription} The model contains {v.counts.total} atoms: {v.counts.C} carbon,{' '}
+            {v.counts.H} hydrogen, {v.counts.N} nitrogen{v.counts.O ? `, and ${v.counts.O} oxygen` : ''}.
           </p>
         )}
       </Section>
 
-      <p className="disclaimer">{MOLECULE_META.conformerNote}</p>
+      <p className="disclaimer">{meta.conformerNote}</p>
       <p className="disclaimer subtle">
         Kekulé mode draws four alternating double bonds; this is a conventional depiction of a single
         delocalised aromatic π-system (see Aromaticity in the settings panel).

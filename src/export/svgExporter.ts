@@ -7,7 +7,6 @@
  */
 
 import type { MoleculeViewer } from '../three/MoleculeViewer';
-import { MOLECULE_META } from '../data/molecule';
 
 type ExportScene = ReturnType<MoleculeViewer['getExportScene']>;
 
@@ -41,7 +40,7 @@ export function exportSceneToSVG(
   parts.push(
     `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" font-family="Inter, system-ui, sans-serif">`,
   );
-  parts.push(`<title>${MOLECULE_META.commonName} — ${MOLECULE_META.fullName}</title>`);
+  parts.push(`<title>${scene.meta.commonName} — ${scene.meta.fullName}</title>`);
 
   // Gradient defs for each atom colour (soft top-left highlight).
   const gradientIds = new Map<number, string>();

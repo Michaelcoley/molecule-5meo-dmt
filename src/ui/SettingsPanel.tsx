@@ -11,6 +11,9 @@ interface Props {
   update: (patch: Partial<ViewerSettings>) => void;
   legend: LegendCat[];
   onExport: (kind: ExportKind) => void;
+  molecules: { id: string; name: string }[];
+  moleculeId: string;
+  onSelectMolecule: (id: string) => void;
 }
 
 export type ExportKind =
@@ -36,10 +39,29 @@ const BASE_STYLES: { value: BaseStyle; label: string }[] = [
   { value: 'gallery-white', label: 'Gallery' },
 ];
 
-export function SettingsPanel({ settings, update, legend, onExport }: Props) {
+export function SettingsPanel({
+  settings, update, legend, onExport, molecules, moleculeId, onSelectMolecule,
+}: Props) {
   return (
     <aside className="panel settings-panel" aria-label="Display settings">
       <h2 className="panel-title">Display</h2>
+
+      {molecules.length > 1 && (
+        <Section title="Molecule">
+          <div className="mode-grid" role="group" aria-label="Select molecule">
+            {molecules.map((m) => (
+              <button
+                key={m.id}
+                className={`mode-btn ${m.id === moleculeId ? 'active' : ''}`}
+                aria-pressed={m.id === moleculeId}
+                onClick={() => onSelectMolecule(m.id)}
+              >
+                {m.name}
+              </button>
+            ))}
+          </div>
+        </Section>
+      )}
 
       <Section title="Rendering style">
         <div className="mode-grid">

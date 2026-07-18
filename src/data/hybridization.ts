@@ -107,25 +107,32 @@ export function computeAtomProperties(mol: ParsedMolecule): AtomProperties[] {
   const rings = findRings(mol);
   const ringAtoms = ringAtomSet(rings);
 
-  // A ring is treated as aromatic if it is 5- or 6-membered, made only of
-  // C/N, and contains at least two formal double bonds (Kekulé) — matching the
-  // indole pyrrole + benzene rings.
-  const aromaticAtoms = new Set<number>();
-  for (const ring of rings) {
-    if (ring.length < 5 || ring.length > 6) continue;
-    if (!ring.every((i) => mol.atoms[i].element === 'C' || mol.atoms[i].element === 'N')) continue;
-    const ringSet = new Set(ring);
-    let doubles = 0;
-    for (const bond of mol.bonds) {
-      if (ringSet.has(bond.a) && ringSet.has(bond.b) && bond.order === 2) doubles++;
-    }
-    if (doubles >= 2) ring.forEach((i) => aromaticAtoms.add(i));
-  }
-
   const maxOrderByAtom = mol.atoms.map(() => 1);
   for (const b of mol.bonds) {
     maxOrderByAtom[b.a] = Math.max(maxOrderByAtom[b.a], b.order);
     maxOrderByAtom[b.b] = Math.max(maxOrderByAtom[b.b], b.order);
+  }
+
+  // Aromaticity is detected from conjugation rather than a specific Kekulé
+  // double-bond pattern (which differs between conformers): a 5-/6-membered
+  // ring of C/N/O is aromatic when it contains at least one internal double
+  // bond AND every ring atom is conjugated — i.e. participates in a double
+  // bond (including one shared with a fused ring) or is a lone-pair-donating
+  // heteroatom (pyrrole-type N, ether-type O). This correctly aromatises both
+  // the benzene and the pyrrole rings of an indole regardless of where the
+  // fusion double bond is drawn.
+  const aromaticAtoms = new Set<number>();
+  for (const ring of rings) {
+    if (ring.length < 5 || ring.length > 6) continue;
+    if (!ring.every((i) => ['C', 'N', 'O'].includes(mol.atoms[i].element))) continue;
+    const ringSet = new Set(ring);
+    const hasInternalDouble = mol.bonds.some(
+      (b) => ringSet.has(b.a) && ringSet.has(b.b) && b.order === 2,
+    );
+    const allConjugated = ring.every(
+      (i) => maxOrderByAtom[i] >= 2 || mol.atoms[i].element !== 'C',
+    );
+    if (hasInternalDouble && allConjugated) ring.forEach((i) => aromaticAtoms.add(i));
   }
 
   return mol.atoms.map((atom) => {

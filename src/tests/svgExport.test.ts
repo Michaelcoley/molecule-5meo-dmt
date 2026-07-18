@@ -7,6 +7,7 @@ function scene(aromaticMode: 'kekule' | 'delocalized') {
     width: 400,
     height: 300,
     aromaticMode,
+    meta: { commonName: '5-MeO-DMT', fullName: '5-methoxy-N,N-dimethyltryptamine' },
     atoms: [
       { index: 0, element: 'C', color: 0x2b2b30, pxRadius: 20, ndc: { x: -0.3, y: 0, z: 0.1 }, depth: 0.1, radius: 0.26, world: {} },
       { index: 1, element: 'C', color: 0x2b2b30, pxRadius: 20, ndc: { x: 0.3, y: 0, z: -0.1 }, depth: -0.1, radius: 0.26, world: {} },

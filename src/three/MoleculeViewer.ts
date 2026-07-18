@@ -1035,6 +1035,7 @@ export class MoleculeViewer {
       width,
       height,
       aromaticMode: this.settings.aromaticMode,
+      meta: this.molecule.meta,
     };
   }
 

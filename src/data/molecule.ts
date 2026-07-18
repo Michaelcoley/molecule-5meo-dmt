@@ -1,28 +1,18 @@
 /**
- * Assembles the fully-annotated molecule model used throughout the app from
- * the embedded, authentic PubChem CID 1832 3D conformer. The SDF is imported
- * verbatim (?raw) so coordinates are never regenerated at runtime.
+ * Assembles the fully-annotated molecule model used throughout the app from an
+ * authentic PubChem 3D conformer in the registry. The SDF is parsed verbatim so
+ * coordinates are never regenerated at runtime; validation runs against the
+ * molecule's own spec.
  */
 
-import rawSDF from './5meo-dmt.sdf?raw';
 import { parseSDF, type ParsedMolecule, type ParsedAtom, type ParsedBond } from './sdfParser';
 import { computeAtomProperties, type AtomProperties } from './hybridization';
 import { validateMolecule, type ValidationReport } from './validator';
 import { elementInfo } from './elements';
+import { getMoleculeSpec, DEFAULT_MOLECULE_ID, type MoleculeMeta } from './molecules';
 
-/** Static reference identity of the compound. */
-export const MOLECULE_META = {
-  commonName: '5-MeO-DMT',
-  fullName: '5-methoxy-N,N-dimethyltryptamine',
-  iupacName: '2-(5-methoxy-1H-indol-3-yl)-N,N-dimethylethanamine',
-  formula: 'C13H18N2O',
-  molecularWeight: 218.3, // g/mol
-  pubchemCID: 1832,
-  inchiKey: 'ZSTKHSQDNIGFLM-UHFFFAOYSA-N',
-  canonicalSMILES: 'COc1ccc2c(c1)c(CCN(C)C)c[nH]2',
-  conformerNote:
-    'Displayed geometry is the PubChem CID 1832 3D conformer (a single, energetically reasonable conformation). Rotatable side-chain and methoxy bonds permit many conformations in reality.',
-} as const;
+export type { MoleculeMeta } from './molecules';
+export { MOLECULES, DEFAULT_MOLECULE_ID } from './molecules';
 
 export interface EnrichedBond extends ParsedBond {
   /** Bond length in Ångström, computed from the embedded coordinates. */
@@ -30,6 +20,8 @@ export interface EnrichedBond extends ParsedBond {
 }
 
 export interface Molecule {
+  id: string;
+  meta: MoleculeMeta;
   raw: ParsedMolecule;
   atoms: ParsedAtom[];
   bonds: EnrichedBond[];
@@ -50,17 +42,20 @@ function distance(a: ParsedAtom, b: ParsedAtom): number {
   return Math.sqrt(dx * dx + dy * dy + dz * dz);
 }
 
-export function buildMolecule(sdfText: string = rawSDF): Molecule {
-  const raw = parseSDF(sdfText);
+export function buildMolecule(id: string = DEFAULT_MOLECULE_ID): Molecule {
+  const spec = getMoleculeSpec(id);
+  const raw = parseSDF(spec.sdf);
   const properties = computeAtomProperties(raw);
-  const validation = validateMolecule(raw);
+  const validation = validateMolecule(raw, {
+    expectedCounts: spec.expectedCounts,
+    requiredFeatures: spec.requiredFeatures,
+  });
 
   const bonds: EnrichedBond[] = raw.bonds.map((b) => ({
     ...b,
     length: distance(raw.atoms[b.a], raw.atoms[b.b]),
   }));
 
-  // Centroid + bounding radius.
   const n = raw.atoms.length;
   const c: [number, number, number] = [0, 0, 0];
   for (const a of raw.atoms) {
@@ -77,7 +72,6 @@ export function buildMolecule(sdfText: string = rawSDF): Molecule {
     if (d > boundingRadius) boundingRadius = d;
   }
 
-  // Elemental composition ordered C, H, N, O.
   const order = ['C', 'H', 'N', 'O'];
   const counts: Record<string, number> = {};
   for (const a of raw.atoms) counts[a.element] = (counts[a.element] ?? 0) + 1;
@@ -90,6 +84,8 @@ export function buildMolecule(sdfText: string = rawSDF): Molecule {
     }));
 
   return {
+    id: spec.id,
+    meta: spec.meta,
     raw,
     atoms: raw.atoms,
     bonds,
@@ -98,7 +94,7 @@ export function buildMolecule(sdfText: string = rawSDF): Molecule {
     boundingRadius,
     composition,
     validation,
-    sdfText,
+    sdfText: spec.sdf,
   };
 }
 

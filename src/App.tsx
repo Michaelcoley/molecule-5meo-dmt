@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { buildMolecule } from './data/molecule';
+import { buildMolecule, MOLECULES, DEFAULT_MOLECULE_ID } from './data/molecule';
 import { MoleculeViewer, type MeasureResult } from './three/MoleculeViewer';
 import { isWebGLAvailable } from './three/webgl';
 import { DEFAULT_SETTINGS, STORAGE_KEY, type ViewerSettings, type ViewPreset } from './settings';
@@ -12,9 +12,25 @@ import {
   exportGLTF, exportJSON, exportPNG, exportSDF, exportSVG, printInfoSheet, copySMILES,
 } from './export/exporters';
 
+const MOLECULE_KEY = '5meo-dmt-molecule-id-v1';
+
 export function App() {
   const webgl = useMemo(isWebGLAvailable, []);
-  const molecule = useMemo(() => buildMolecule(), []);
+  const [moleculeId, setMoleculeId] = useState<string>(() => {
+    try {
+      return localStorage.getItem(MOLECULE_KEY) || DEFAULT_MOLECULE_ID;
+    } catch {
+      return DEFAULT_MOLECULE_ID;
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem(MOLECULE_KEY, moleculeId);
+    } catch {
+      /* storage may be unavailable */
+    }
+  }, [moleculeId]);
+  const molecule = useMemo(() => buildMolecule(moleculeId), [moleculeId]);
 
   const prefersReduced = useMemo(
     () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false,
@@ -71,6 +87,13 @@ export function App() {
     viewerRef.current?.applySettings(settings);
   }, [settings]);
 
+  // Clear any selection/measurement when switching molecules.
+  useEffect(() => {
+    setSelectedAtom(null);
+    setSelectedBond(null);
+    setMeasure(null);
+  }, [molecule]);
+
   const update = useCallback(
     (patch: Partial<ViewerSettings>) => setSettings((s) => ({ ...s, ...patch })),
     [setSettings],
@@ -93,11 +116,11 @@ export function App() {
   }, []);
 
   const onCopySMILES = useCallback(async () => {
-    const ok = await copySMILES();
+    const ok = await copySMILES(molecule.meta.canonicalSMILES);
     setCopied(ok);
     showToast(ok ? 'SMILES copied to clipboard' : 'Copy failed');
     window.setTimeout(() => setCopied(false), 1800);
-  }, [showToast]);
+  }, [showToast, molecule]);
 
   const onExport = useCallback(
     async (kind: ExportKind) => {
@@ -153,19 +176,21 @@ export function App() {
   }, [settings, update, onFit, onReset, onView]);
 
   if (!webgl) {
+    const m = molecule.meta;
     return (
       <div className="webgl-fallback">
-        <h1>5-MeO-DMT</h1>
+        <h1>{m.commonName}</h1>
         <p>
           This museum-quality molecular display requires WebGL, which is unavailable or disabled in
           this browser. Please enable hardware acceleration or try a current version of Chrome,
           Firefox, Safari, or Edge.
         </p>
         <pre>
-{`Formula   C13H18N2O
-Weight    218.30 g/mol
-PubChem   CID 1832
-SMILES    ${molecule.sdfText ? 'COc1ccc2c(c1)c(CCN(C)C)c[nH]2' : ''}`}
+{`Name      ${m.fullName}
+Formula   ${m.formula}
+Weight    ${m.molecularWeight} g/mol
+PubChem   CID ${m.pubchemCID}
+SMILES    ${m.canonicalSMILES}`}
         </pre>
       </div>
     );
@@ -180,7 +205,7 @@ SMILES    ${molecule.sdfText ? 'COc1ccc2c(c1)c(CCN(C)C)c[nH]2' : ''}`}
     >
       <div className="stage-wrap">
         <div ref={stageRef} className="stage" tabIndex={0} aria-label="3D molecular viewport" />
-        {settings.showPlaque && <Plaque />}
+        {settings.showPlaque && <Plaque meta={molecule.meta} />}
         {toast && <div className="toast" role="status">{toast}</div>}
       </div>
 
@@ -215,7 +240,15 @@ SMILES    ${molecule.sdfText ? 'COc1ccc2c(c1)c(CCN(C)C)c[nH]2' : ''}`}
             onCopySMILES={onCopySMILES}
             copied={copied}
           />
-          <SettingsPanel settings={settings} update={update} legend={legend} onExport={onExport} />
+          <SettingsPanel
+            settings={settings}
+            update={update}
+            legend={legend}
+            onExport={onExport}
+            molecules={MOLECULES.map((m) => ({ id: m.id, name: m.meta.commonName }))}
+            moleculeId={moleculeId}
+            onSelectMolecule={setMoleculeId}
+          />
         </div>
       )}
 

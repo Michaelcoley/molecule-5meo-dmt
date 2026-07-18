@@ -1,13 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { buildMolecule, MOLECULE_META } from '../data/molecule';
+import { buildMolecule } from '../data/molecule';
 import { fitDistance } from '../three/cameraMath';
 
 describe('assembled molecule model', () => {
-  const mol = buildMolecule();
+  const mol = buildMolecule('5meo-dmt');
 
   it('reproduces the molecular weight (~218.30 g/mol)', () => {
     const total = mol.composition.reduce((s, c) => s + c.weightContribution, 0);
-    expect(total).toBeCloseTo(MOLECULE_META.molecularWeight, 1);
+    expect(total).toBeCloseTo(mol.meta.molecularWeight, 1);
   });
 
   it('computes chemically reasonable bond lengths', () => {

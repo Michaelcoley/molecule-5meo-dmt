@@ -12,6 +12,12 @@ coordinates, elements, connectivity, bond orders and hydrogens are preserved
 exactly, never guessed from a 2D diagram. The structure is validated
 programmatically before it is ever drawn.
 
+A **molecule selector** (top of the Display panel) also lets you switch to
+**DMT / N,N-dimethyltryptamine** (PubChem CID 6089, C₁₂H₁₆N₂) — likewise an
+authentic 3D conformer, validated against its own composition and structural
+features. The registry in `src/data/molecules.ts` makes adding further
+compounds a matter of dropping in an SDF and a spec.
+
 ![5-MeO-DMT in museum mode](docs/preview.png)
 
 ---
