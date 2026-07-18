@@ -922,7 +922,12 @@ export class MoleculeViewer {
     const w = this.container.clientWidth || 1;
     const h = this.container.clientHeight || 1;
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    this.renderer.setSize(w, h, false);
+    // updateStyle must stay true (the default): on high-DPI displays the draw
+    // buffer is devicePixelRatio× larger than the CSS box, and only the style
+    // width/height keep the canvas visually the same size as its container.
+    // Passing `false` here leaves the canvas displayed at buffer size (2× on
+    // Retina), overflowing the stage while the CSS2D label overlay stays at 1×.
+    this.renderer.setSize(w, h);
     this.labelRenderer.setSize(w, h);
     this.perspCamera.aspect = w / h;
     this.perspCamera.updateProjectionMatrix();
