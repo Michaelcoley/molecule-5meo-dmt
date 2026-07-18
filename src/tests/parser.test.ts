@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import rawSDF from '../data/5meo-dmt.sdf?raw';
+import rawSDF from '../data/sdf/5meo-dmt.sdf?raw';
 import { parseSDF } from '../data/sdfParser';
 
 describe('SDF parser', () => {

@@ -9,9 +9,10 @@ import { parseSDF, type ParsedMolecule, type ParsedAtom, type ParsedBond } from 
 import { computeAtomProperties, type AtomProperties } from './hybridization';
 import { validateMolecule, type ValidationReport } from './validator';
 import { elementInfo } from './elements';
-import { getMoleculeSpec, DEFAULT_MOLECULE_ID, type MoleculeMeta } from './molecules';
+import { getMoleculeSpec, DEFAULT_MOLECULE_ID } from './molecules';
+import type { MoleculeMeta } from './moleculeTypes';
 
-export type { MoleculeMeta } from './molecules';
+export type { MoleculeMeta, MoleculeCategory } from './moleculeTypes';
 export { MOLECULES, DEFAULT_MOLECULE_ID } from './molecules';
 
 export interface EnrichedBond extends ParsedBond {

@@ -245,7 +245,7 @@ SMILES    ${m.canonicalSMILES}`}
             update={update}
             legend={legend}
             onExport={onExport}
-            molecules={MOLECULES.map((m) => ({ id: m.id, name: m.meta.commonName }))}
+            molecules={MOLECULES.map((m) => ({ id: m.id, name: m.meta.commonName, category: m.meta.category }))}
             moleculeId={moleculeId}
             onSelectMolecule={setMoleculeId}
           />

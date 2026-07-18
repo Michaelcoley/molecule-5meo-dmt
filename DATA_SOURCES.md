@@ -1,76 +1,104 @@
 # Data Sources
 
-The app ships two authentically-sourced, selectable structures. Both are taken
-**verbatim** from PubChem computed 3D conformers — no coordinates are guessed
-from a 2D diagram or hand-edited — and each is validated against its own
-composition + structural-feature spec before rendering.
+Every selectable structure is an **authentic PubChem computed 3D conformer**
+(MDL SDF, `record_type=3d`), taken verbatim — atomic coordinates, elements,
+connectivity, bond orders, formal charges and hydrogens are preserved exactly;
+none are guessed from a 2D diagram or hand-edited. Files live in
+`src/data/sdf/<id>.sdf` (glob-loaded at build time) and the app never fetches at
+runtime, so it works fully offline.
 
-## Molecular structure — 5-MeO-DMT (free base)
-
-The 3D atomic coordinates, element identities, bond connectivity, bond orders,
-and hydrogen placement are taken **verbatim** from the PubChem computed 3D
-conformer. No coordinates were guessed from a 2D diagram or hand-edited.
-
-- **Compound:** 5-MeO-DMT · 5-methoxy-N,N-dimethyltryptamine
-- **PubChem CID:** 1832
-- **Record retrieved:** `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/1832/record/SDF?record_type=3d`
-- **Format:** MDL Molfile / SDF V2000 (`-OEChem` 3D conformer, reported RMSD 0.6 Å)
-- **Local copy:** [`src/data/5meo-dmt.sdf`](src/data/5meo-dmt.sdf) (imported at build
-  time via `?raw`) and [`public/data/5meo-dmt.sdf`](public/data/5meo-dmt.sdf) (served
-  for the in-app "Download SDF" action).
-
-The application never fetches this structure at runtime; the validated file is
-embedded, so the display works fully offline.
-
-### Reference identifiers
-
-| Field | Value |
-| --- | --- |
-| Molecular formula | C₁₃H₁₈N₂O |
-| Molecular weight | 218.30 g/mol |
-| InChIKey | ZSTKHSQDNIGFLM-UHFFFAOYSA-N |
-| Canonical SMILES | `COc1ccc2c(c1)c(CCN(C)C)c[nH]2` |
-
-## Molecular structure — DMT / N,N-DMT (free base)
-
-- **Compound:** DMT · N,N-dimethyltryptamine
-- **PubChem CID:** 6089
-- **Record retrieved:** `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/6089/record/SDF?record_type=3d`
-- **Format:** MDL Molfile / SDF V2000 (`-OEChem` 3D conformer)
-- **Local copy:** [`src/data/dmt.sdf`](src/data/dmt.sdf) (imported via `?raw`) and
-  [`public/data/dmt.sdf`](public/data/dmt.sdf) (served for "Download SDF").
-
-### Reference identifiers
-
-| Field | Value |
-| --- | --- |
-| Molecular formula | C₁₂H₁₆N₂ |
-| Molecular weight | 188.27 g/mol |
-| InChIKey | BYPFEZZEUUWMEJ-UHFFFAOYSA-N |
-| Canonical SMILES | `CN(C)CCc1c[nH]c2ccccc12` |
-
-DMT is structurally 5-MeO-DMT without the 5-methoxy substituent: 12 C, 16 H,
-2 N, 0 O; 30 atoms total.
-
-## Additional selectable compounds
-
-Each is an authentic PubChem computed 3D conformer (SDF, `record_type=3d`),
-embedded at `src/data/<id>.sdf` and `public/data/<id>.sdf`, validated against
-its own composition + feature spec before rendering.
-
-| Compound | PubChem CID | Formula | MW (g/mol) | InChIKey |
-| --- | --- | --- | --- | --- |
-| Psilocybin | 10624 | C₁₂H₁₇N₂O₄P | 284.25 | QVDSEJDULKLHCG-UHFFFAOYSA-N |
-| LSD (lysergic acid diethylamide) | 5761 | C₂₀H₂₅N₃O | 323.4 | VAYOSLLFUXYJDT-RDTXWAMCSA-N |
-| MDMA (3,4-methylenedioxymethamphetamine) | 1615 | C₁₁H₁₅NO₂ | 193.24 | SHXWCVYOXRDMCX-UHFFFAOYSA-N |
-| 2C-B (4-bromo-2,5-dimethoxyphenethylamine) | 98527 | C₁₀H₁₄BrNO₂ | 260.13 | YMHOBZXQZVXHBM-UHFFFAOYSA-N |
+Metadata (formula, weight, InChIKey, SMILES, IUPAC name) and the SDFs are pulled
+from PubChem by the reproducible scripts in [`scripts/`](scripts/README.md).
+Each structure is validated before rendering: its atom composition must match
+the authoritative PubChem molecular formula exactly (derived into
+`expectedCounts` by `parseFormula`), and flagship molecules additionally assert
+detected structural features.
 
 Retrieval endpoint (per CID):
 `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/<CID>/record/SDF?record_type=3d`
 
-Psilocybin introduces phosphorus (P) and 2C-B introduces bromine (Br); CPK
-colours, covalent/van der Waals radii, and atomic weights for P, S, and the
-halogens (F, Cl, Br, I) are included in [`src/data/elements.ts`](src/data/elements.ts).
+## Provenance — all compounds
+
+MW in g/mol. All coordinates are 3D conformers.
+
+### Tryptamines
+
+| Compound | PubChem CID | Formula | MW | InChIKey |
+| --- | --- | --- | --- | --- |
+| 5-MeO-DMT | 1832 | C13H18N2O | 218.29 | ZSTKHSQDNIGFLM-UHFFFAOYSA-N |
+| DMT | 6089 | C12H16N2 | 188.27 | DMULVCHRPCFFGV-UHFFFAOYSA-N |
+| Psilocybin | 10624 | C12H17N2O4P | 284.25 | QVDSEJDULKLHCG-UHFFFAOYSA-N |
+| Psilocin | 4980 | C12H16N2O | 204.27 | SPCIYGNTAMCTRO-UHFFFAOYSA-N |
+| Bufotenin | 10257 | C12H16N2O | 204.27 | VTTONGPRPXSUTJ-UHFFFAOYSA-N |
+| DET | 6090 | C14H20N2 | 216.32 | LSSUMOWDTKZHHT-UHFFFAOYSA-N |
+| DPT | 6091 | C16H24N2 | 244.37 | BOOQTIHIKDDPRW-UHFFFAOYSA-N |
+| MET | 824845 | C13H18N2 | 202.30 | MYEGVMLMDWYPOA-UHFFFAOYSA-N |
+| MiPT | 29935323 | C14H20N2 | 216.32 | KTQJVAJLJZIKKD-UHFFFAOYSA-N |
+| DiPT | 26903 | C16H24N2 | 244.37 | ZRVAAGAZUWXRIP-UHFFFAOYSA-N |
+| 4-AcO-DMT | 15429212 | C14H18N2O2 | 246.30 | RTLRUOSYLFOFHV-UHFFFAOYSA-N |
+| 4-HO-MET | 21786582 | C13H18N2O | 218.29 | ORWQBKPSGDRPPA-UHFFFAOYSA-N |
+| 4-HO-MiPT | 10082683 | C14H20N2O | 232.32 | RXKGHZCQFXXWFQ-UHFFFAOYSA-N |
+
+### Lysergamides
+
+| Compound | PubChem CID | Formula | MW | InChIKey |
+| --- | --- | --- | --- | --- |
+| LSD | 5761 | C20H25N3O | 323.4 | VAYOSLLFUXYJDT-RDTXWAMCSA-N |
+| LSA | 442072 | C16H17N3O | 267.33 | GENAHGKEFJLNJB-QMTHXVAHSA-N |
+| AL-LAD | 15227511 | C22H27N3O | 349.5 | JCQLEPDZFXGHHQ-OXQOHEQNSA-N |
+| ETH-LAD | 44457783 | C21H27N3O | 337.5 | MYNOUXJLOHVSMQ-DNVCBOLYSA-N |
+| PRO-LAD | 44457803 | C22H29N3O | 351.5 | HZKYLVLOBYNKKM-OXQOHEQNSA-N |
+| 1P-LSD | 119025985 | C23H29N3O2 | 379.5 | JSMQOVGXBIDBIE-OXQOHEQNSA-N |
+| 1cP-LSD | 155884675 | C24H29N3O2 | 391.5 | RAFUPYYDHPFASC-DYESRHJHSA-N |
+| 1V-LSD | 162368540 | C25H33N3O2 | 407.5 | GIIBVGJWUZNECE-XMSQKQJNSA-N |
+
+### Phenethylamines
+
+| Compound | PubChem CID | Formula | MW | InChIKey |
+| --- | --- | --- | --- | --- |
+| Mescaline | 4076 | C11H17NO3 | 211.26 | RHCSKNNOAZULRK-UHFFFAOYSA-N |
+| 2C-B | 98527 | C10H14BrNO2 | 260.13 | YMHOBZXQZVXHBM-UHFFFAOYSA-N |
+| 2C-C | 29979100 | C10H14ClNO2 | 215.67 | CGKQFIWIPSIVAS-UHFFFAOYSA-N |
+| 2C-D | 135740 | C11H17NO2 | 195.26 | UNQQFDCVEMVQHM-UHFFFAOYSA-N |
+| 2C-E | 24729233 | C12H19NO2 | 209.28 | VDRGNAMREYBIHA-UHFFFAOYSA-N |
+| 2C-I | 10267191 | C10H14INO2 | 307.13 | PQHQBRJAAZQXHL-UHFFFAOYSA-N |
+| 2C-P | 44350080 | C13H21NO2 | 223.31 | PZJOKFZGPTVNBF-UHFFFAOYSA-N |
+| 2C-T-2 | 12074193 | C12H19NO2S | 241.35 | HCWQGDLBIKOJPM-UHFFFAOYSA-N |
+| 2C-T-7 | 24728635 | C13H21NO2S | 255.38 | OLEVEPDJOFPJTF-UHFFFAOYSA-N |
+| DOM | 85875 | C12H19NO2 | 209.28 | NTJQREUGJKIARY-UHFFFAOYSA-N |
+| DOB | 62065 | C11H16BrNO2 | 274.15 | FXMWUTGUCAKGQL-UHFFFAOYSA-N |
+| DOC | 542036 | C11H16ClNO2 | 229.70 | ACRITBNCBMTINK-UHFFFAOYSA-N |
+| DOI | 1229 | C11H16INO2 | 321.15 | BGMZUEKZENQUJY-UHFFFAOYSA-N |
+| 25I-NBOMe | 10251906 | C18H22INO3 | 427.3 | ZFUOLNAKPBFDIJ-UHFFFAOYSA-N |
+| 25B-NBOMe | 9977044 | C18H22BrNO3 | 380.3 | SUXGNJVVBGJEFB-UHFFFAOYSA-N |
+| 25C-NBOMe | 46856354 | C18H22ClNO3 | 335.8 | FJFPOGCVVLUYAQ-UHFFFAOYSA-N |
+
+### Dissociatives
+
+| Compound | PubChem CID | Formula | MW | InChIKey |
+| --- | --- | --- | --- | --- |
+| Ketamine | 3821 | C13H16ClNO | 237.72 | YQEZLKZALYSWHR-UHFFFAOYSA-N |
+| Esketamine | 182137 | C13H16ClNO | 237.72 | YQEZLKZALYSWHR-ZDUSSCGKSA-N |
+| PCP | 6468 | C17H25N | 243.4 | JTJMJGYZQZDUJJ-UHFFFAOYSA-N |
+| MXE | 52911279 | C15H21NO2 | 247.33 | LPKTWLVEGBNOOX-UHFFFAOYSA-N |
+| DXM | 5360696 | C18H25NO | 271.4 | MKXZASYAUGDDCJ-NJAFHUGGSA-N |
+
+### Entactogens
+
+| Compound | PubChem CID | Formula | MW | InChIKey |
+| --- | --- | --- | --- | --- |
+| MDMA | 1615 | C11H15NO2 | 193.24 | SHXWCVYOXRDMCX-UHFFFAOYSA-N |
+| MDA | 1614 | C10H13NO2 | 179.22 | NGBBVGZWCFBOGO-UHFFFAOYSA-N |
+| MDEA | 105039 | C12H17NO2 | 207.27 | PVXVWWANJIWJOO-UHFFFAOYSA-N |
+| MBDB | 124844 | C12H17NO2 | 207.27 | USWVWJSAJAEEHQ-UHFFFAOYSA-N |
+
+### Other
+
+| Compound | PubChem CID | Formula | MW | InChIKey |
+| --- | --- | --- | --- | --- |
+| Salvinorin A | 128563 | C23H28O8 | 432.5 | OBSYBRPAKCASQB-AGQYDFLVSA-N |
+| Muscimol | 4266 | C4H6N2O2 | 114.10 | ZJQHPWUVQPJPQT-UHFFFAOYSA-N |
+| Ibotenic Acid | 1233 | C5H6N2O4 | 158.11 | IRJCBFDCFXCWGO-UHFFFAOYSA-N |
 
 ## Element reference data
 

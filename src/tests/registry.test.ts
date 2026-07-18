@@ -4,10 +4,14 @@ import { buildMolecule } from '../data/molecule';
 import { elementInfo } from '../data/elements';
 
 describe('molecule registry', () => {
-  it('registers the six expected compounds', () => {
-    expect(MOLECULES.map((m) => m.id)).toEqual([
-      '5meo-dmt', 'dmt', 'psilocybin', 'lsd', 'mdma', '2c-b',
-    ]);
+  it('registers the full compound library with unique ids', () => {
+    expect(MOLECULES.length).toBeGreaterThanOrEqual(49);
+    expect(MOLECULES[0].id).toBe('5meo-dmt');
+    const ids = MOLECULES.map((m) => m.id);
+    expect(new Set(ids).size).toBe(ids.length); // no duplicates
+    for (const id of ['psilocin', 'lsd', 'mescaline', 'ketamine', 'salvinorin-a', '2c-b']) {
+      expect(ids).toContain(id);
+    }
   });
 
   for (const spec of MOLECULES) {

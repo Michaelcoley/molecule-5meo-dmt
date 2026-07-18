@@ -11,7 +11,7 @@
 
 import type { ParsedMolecule } from './sdfParser';
 import { buildAdjacency, findRings } from './hybridization';
-import type { ExpectedCounts, FeatureId } from './molecules';
+import type { ExpectedCounts, FeatureId } from './moleculeTypes';
 
 export interface FeatureCheck {
   id: FeatureId;

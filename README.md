@@ -12,22 +12,26 @@ coordinates, elements, connectivity, bond orders and hydrogens are preserved
 exactly, never guessed from a 2D diagram. The structure is validated
 programmatically before it is ever drawn.
 
-A **molecule selector** (top of the Display panel) switches between six
-authentic 3D conformers, each validated against its own composition and
-structural features:
+A searchable **molecule selector** (top of the Display panel) switches between
+**49 compounds**, each an authentic PubChem 3D conformer validated against its
+own PubChem molecular formula (and, for the flagship molecules, asserted
+structural features). They are grouped into six classes:
 
-| Molecule | PubChem CID | Formula |
+| Class | Count | Examples |
 | --- | --- | --- |
-| 5-MeO-DMT | 1832 | C₁₃H₁₈N₂O |
-| DMT (N,N-dimethyltryptamine) | 6089 | C₁₂H₁₆N₂ |
-| Psilocybin | 10624 | C₁₂H₁₇N₂O₄P |
-| LSD (lysergic acid diethylamide) | 5761 | C₂₀H₂₅N₃O |
-| MDMA | 1615 | C₁₁H₁₅NO₂ |
-| 2C-B | 98527 | C₁₀H₁₄BrNO₂ |
+| Tryptamines | 13 | 5-MeO-DMT, DMT, Psilocybin, Psilocin, Bufotenin, DET, DPT, MET, MiPT, DiPT, 4-AcO-DMT, 4-HO-MET, 4-HO-MiPT |
+| Lysergamides | 8 | LSD, LSA, AL-LAD, ETH-LAD, PRO-LAD, 1P-LSD, 1cP-LSD, 1V-LSD |
+| Phenethylamines | 16 | Mescaline, 2C-B/C/D/E/I/P, 2C-T-2, 2C-T-7, DOM, DOB, DOC, DOI, 25I/B/C-NBOMe |
+| Dissociatives | 5 | Ketamine, Esketamine, PCP, MXE, DXM |
+| Entactogens | 4 | MDMA, MDA, MDEA, MBDB |
+| Other | 3 | Salvinorin A, Muscimol, Ibotenic acid |
 
-The registry in `src/data/molecules.ts` makes adding further compounds a matter
-of dropping in an SDF and a spec; element data covers C, H, N, O, P, S and the
-halogens.
+Structure files live in `src/data/sdf/` (glob-loaded) and the metadata is
+generated from PubChem by the scripts in [`scripts/`](scripts/README.md).
+Element reference data covers C, H, N, O, P, S and the halogens (F, Cl, Br, I).
+Adding a compound is a matter of a row in `scripts/fetch-molecules.mjs` plus a
+re-run; see the full provenance table (CIDs, InChIKeys) in
+[`DATA_SOURCES.md`](DATA_SOURCES.md).
 
 ![5-MeO-DMT in museum mode](docs/preview.png)
 
