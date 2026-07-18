@@ -52,6 +52,26 @@ embedded, so the display works fully offline.
 DMT is structurally 5-MeO-DMT without the 5-methoxy substituent: 12 C, 16 H,
 2 N, 0 O; 30 atoms total.
 
+## Additional selectable compounds
+
+Each is an authentic PubChem computed 3D conformer (SDF, `record_type=3d`),
+embedded at `src/data/<id>.sdf` and `public/data/<id>.sdf`, validated against
+its own composition + feature spec before rendering.
+
+| Compound | PubChem CID | Formula | MW (g/mol) | InChIKey |
+| --- | --- | --- | --- | --- |
+| Psilocybin | 10624 | C₁₂H₁₇N₂O₄P | 284.25 | QVDSEJDULKLHCG-UHFFFAOYSA-N |
+| LSD (lysergic acid diethylamide) | 5761 | C₂₀H₂₅N₃O | 323.4 | VAYOSLLFUXYJDT-RDTXWAMCSA-N |
+| MDMA (3,4-methylenedioxymethamphetamine) | 1615 | C₁₁H₁₅NO₂ | 193.24 | SHXWCVYOXRDMCX-UHFFFAOYSA-N |
+| 2C-B (4-bromo-2,5-dimethoxyphenethylamine) | 98527 | C₁₀H₁₄BrNO₂ | 260.13 | YMHOBZXQZVXHBM-UHFFFAOYSA-N |
+
+Retrieval endpoint (per CID):
+`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/<CID>/record/SDF?record_type=3d`
+
+Psilocybin introduces phosphorus (P) and 2C-B introduces bromine (Br); CPK
+colours, covalent/van der Waals radii, and atomic weights for P, S, and the
+halogens (F, Cl, Br, I) are included in [`src/data/elements.ts`](src/data/elements.ts).
+
 ## Element reference data
 
 Rendering radii, colours, and atomic weights are drawn from standard tabulated

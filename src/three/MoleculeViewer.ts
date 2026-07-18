@@ -40,6 +40,7 @@ const HYBRID_COLORS: Record<string, { label: string; color: number }> = {
   'N-pyramidal': { label: 'pyramidal amine N', color: 0xff5cae },
   'O-bent': { label: 'bent ether O', color: 0xff5c5c },
   H: { label: 'hydrogen', color: 0xf0f0f0 },
+  other: { label: 'other heteroatom', color: 0x39c07a },
 };
 
 function hybridCategory(mol: Molecule, i: number): keyof typeof HYBRID_COLORS {
@@ -48,6 +49,7 @@ function hybridCategory(mol: Molecule, i: number): keyof typeof HYBRID_COLORS {
   if (el === 'H') return 'H';
   if (el === 'O') return 'O-bent';
   if (el === 'N') return p.aromatic ? 'N-planar' : 'N-pyramidal';
+  if (el !== 'C') return 'other'; // P, S, halogens, …
   return p.hybridization === 'sp2' ? 'sp2-C' : 'sp3-C';
 }
 

@@ -72,7 +72,7 @@ export function buildMolecule(id: string = DEFAULT_MOLECULE_ID): Molecule {
     if (d > boundingRadius) boundingRadius = d;
   }
 
-  const order = ['C', 'H', 'N', 'O'];
+  const order = ['C', 'H', 'N', 'O', 'P', 'S', 'F', 'Cl', 'Br', 'I'];
   const counts: Record<string, number> = {};
   for (const a of raw.atoms) counts[a.element] = (counts[a.element] ?? 0) + 1;
   const composition = order

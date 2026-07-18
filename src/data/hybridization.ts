@@ -148,6 +148,11 @@ export function computeAtomProperties(mol: ParsedMolecule): AtomProperties[] {
       return { hybridization: 'n/a', geometry: 'terminal', aromatic, inRing, neighborCount: nb };
     }
 
+    // Monovalent halogens are terminal substituents.
+    if (['F', 'Cl', 'Br', 'I'].includes(atom.element)) {
+      return { hybridization: 'sp3', geometry: 'terminal', aromatic, inRing, neighborCount: nb };
+    }
+
     if (aromatic) {
       hybridization = 'sp2';
       geometry = 'trigonal planar';

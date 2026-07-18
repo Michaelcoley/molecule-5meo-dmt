@@ -88,6 +88,26 @@ const DETECTORS: Record<FeatureId, Detector> = {
     };
   },
 
+  methylenedioxy: ({ mol, adj, six, neighborsOf, elementOf }) => {
+    // A CH2 bridging two oxygens, each attached to an aromatic ring carbon
+    // (the 1,3-dioxole fused to benzene, as in MDMA / MDA).
+    let ok = false;
+    for (const c of mol.atoms.filter((a) => a.element === 'C')) {
+      const os = adj[c.index].filter((j) => elementOf(j) === 'O');
+      const hs = neighborsOf(c.index).filter((n) => n.element === 'H').length;
+      if (os.length === 2 && hs === 2) {
+        const bothOnRing = os.every((o) => adj[o].some((k) => k !== c.index && six?.includes(k)));
+        if (bothOnRing) ok = true;
+      }
+    }
+    return {
+      id: 'methylenedioxy',
+      label: 'Methylenedioxy ring',
+      ok,
+      detail: ok ? 'O–CH2–O bridge fused to the aromatic ring.' : 'No methylenedioxy bridge found.',
+    };
+  },
+
   'tertiary-amine': ({ mol, neighborsOf }) => {
     const amine = mol.atoms
       .filter((a) => a.element === 'N')
@@ -172,9 +192,16 @@ export function validateMolecule(mol: ParsedMolecule, spec: ValidationSpec): Val
   const counts = countElements(mol);
   const expected = spec.expectedCounts;
 
-  for (const el of ['C', 'H', 'N', 'O'] as const) {
+  // Every expected element must match exactly...
+  for (const el of Object.keys(expected)) {
+    if (el === 'total') continue;
     const got = counts[el] ?? 0;
     if (got !== expected[el]) errors.push(`Expected ${expected[el]} ${el} atoms, found ${got}.`);
+  }
+  // ...and no unexpected elements may be present.
+  for (const el of Object.keys(counts)) {
+    if (el === 'total') continue;
+    if (!(el in expected)) errors.push(`Unexpected element ${el} present (${counts[el]}).`);
   }
   if (counts.total !== expected.total) {
     errors.push(`Expected ${expected.total} total atoms, found ${counts.total}.`);

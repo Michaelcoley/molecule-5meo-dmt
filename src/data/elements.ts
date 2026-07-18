@@ -12,7 +12,9 @@
  * DATA_SOURCES.md.
  */
 
-export type ElementSymbol = 'C' | 'H' | 'N' | 'O';
+export type ElementSymbol =
+  | 'C' | 'H' | 'N' | 'O'
+  | 'P' | 'S' | 'F' | 'Cl' | 'Br' | 'I';
 
 export interface ElementInfo {
   symbol: ElementSymbol;
@@ -70,6 +72,66 @@ export const ELEMENTS: Record<ElementSymbol, ElementInfo> = {
     vdwRadius: 1.52,
     cpkColor: 0xe8322a, // red
     accessibleColor: 0xff6a00,
+  },
+  P: {
+    symbol: 'P',
+    name: 'Phosphorus',
+    atomicNumber: 15,
+    atomicWeight: 30.974,
+    covalentRadius: 1.07,
+    vdwRadius: 1.8,
+    cpkColor: 0xff8000, // orange
+    accessibleColor: 0xff9d2e,
+  },
+  S: {
+    symbol: 'S',
+    name: 'Sulfur',
+    atomicNumber: 16,
+    atomicWeight: 32.06,
+    covalentRadius: 1.05,
+    vdwRadius: 1.8,
+    cpkColor: 0xd4b000, // yellow
+    accessibleColor: 0xe6c200,
+  },
+  F: {
+    symbol: 'F',
+    name: 'Fluorine',
+    atomicNumber: 9,
+    atomicWeight: 18.998,
+    covalentRadius: 0.57,
+    vdwRadius: 1.47,
+    cpkColor: 0x59c53c, // green
+    accessibleColor: 0x57d13a,
+  },
+  Cl: {
+    symbol: 'Cl',
+    name: 'Chlorine',
+    atomicNumber: 17,
+    atomicWeight: 35.45,
+    covalentRadius: 1.02,
+    vdwRadius: 1.75,
+    cpkColor: 0x35b535, // green
+    accessibleColor: 0x36c536,
+  },
+  Br: {
+    symbol: 'Br',
+    name: 'Bromine',
+    atomicNumber: 35,
+    atomicWeight: 79.904,
+    covalentRadius: 1.2,
+    vdwRadius: 1.85,
+    cpkColor: 0xa52a1e, // brown-red
+    accessibleColor: 0xc65a3a,
+  },
+  I: {
+    symbol: 'I',
+    name: 'Iodine',
+    atomicNumber: 53,
+    atomicWeight: 126.904,
+    covalentRadius: 1.39,
+    vdwRadius: 1.98,
+    cpkColor: 0x8f00b5, // violet
+    accessibleColor: 0xb14ecf,
   },
 };
 
