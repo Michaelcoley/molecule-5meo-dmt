@@ -49,6 +49,22 @@ body {
 .app.bg-light { --bg: #eef0f3; }
 .app.bg-light .stage { background: #f3f4f7; }
 
+/* Panels wrapper: transparent on desktop (children place into the grid),
+   a slide-in scrollable drawer on small screens. */
+.panels { display: contents; }
+.panels-close { display: none; }
+
+/* Presentation-mode restore button (shown only when all chrome is hidden). */
+.ui-restore {
+  position: absolute; bottom: 22px; right: 22px; z-index: 60;
+  width: 46px; height: 46px; border-radius: 50%;
+  background: var(--panel); backdrop-filter: blur(18px);
+  border: 1px solid var(--panel-border); color: var(--text);
+  font-size: 20px; cursor: pointer; box-shadow: var(--shadow);
+  display: grid; place-items: center; opacity: 0.7; transition: opacity 0.2s, transform 0.2s;
+}
+.ui-restore:hover { opacity: 1; transform: scale(1.06); }
+
 /* --- Panels --------------------------------------------------------------- */
 .panel {
   background: var(--panel);
@@ -233,18 +249,37 @@ input[type='range']::-moz-range-thumb { width: 15px; height: 15px; border-radius
 @media (max-width: 1080px) {
   .app, .app.panels-hidden { grid-template-columns: 1fr; }
   .stage-wrap { grid-column: 1; grid-row: 1; }
-  .panel {
-    position: fixed; top: 0; height: 100vh; width: min(86vw, 360px); z-index: 40;
-    box-shadow: var(--shadow);
+
+  /* Both panels collapse into a single slide-up scrollable sheet. */
+  .panels {
+    display: block;
+    position: fixed; inset: 0; z-index: 50;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    background: rgba(8, 9, 12, 0.72);
+    backdrop-filter: blur(10px);
+    animation: sheet-in 0.22s ease;
   }
-  .info-panel { left: 0; }
-  .settings-panel { right: 0; }
-  .app.panels-hidden .panel { display: none; }
-  .toolbar { flex-wrap: wrap; max-width: 94vw; justify-content: center; }
+  .panels-close {
+    display: block; position: sticky; top: 0; z-index: 2;
+    width: 100%; padding: 13px; border: none;
+    background: var(--panel-solid); color: var(--text);
+    border-bottom: 1px solid var(--panel-border);
+    font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .panel {
+    width: 100%; height: auto; min-height: 0;
+    border: none; border-bottom: 1px solid var(--panel-border);
+    grid-column: auto !important;
+  }
+  .toolbar { flex-wrap: wrap; max-width: 96vw; justify-content: center; }
   .toolbar-group.views { border-right: none; }
 }
+@keyframes sheet-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
 @media (max-width: 560px) {
-  .panel { width: 100vw; }
-  .toolbar { top: 8px; gap: 6px; padding: 5px 6px; }
+  .toolbar { top: 8px; gap: 4px; padding: 5px 6px; }
+  .toolbar-group.views .view-btn { padding: 6px 6px; font-size: 11px; }
+  .plaque { bottom: 14px; }
   .plaque-inner { padding: 9px 16px; }
+  .plaque-name { font-size: 16px; }
 }

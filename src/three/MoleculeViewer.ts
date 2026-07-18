@@ -665,9 +665,11 @@ export class MoleculeViewer {
     this.camera.lookAt(target);
   }
 
-  /** Distance at which the molecule fills ~70% of the view. */
+  /** Distance at which the molecule fills ~70% of the view (aspect-aware, so
+   *  wide molecules are not clipped on tall portrait / phone screens). */
   private fitDistance(): number {
-    return fitDistance(this.sceneRadius, this.perspCamera.fov, 0.72);
+    const aspect = (this.container.clientWidth || 1) / (this.container.clientHeight || 1);
+    return fitDistance(this.sceneRadius, this.perspCamera.fov, 0.72, aspect);
   }
 
   frameToFit(animated = true) {

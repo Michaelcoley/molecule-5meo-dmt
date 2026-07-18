@@ -93,7 +93,14 @@ desktop, tablet and mobile.
 | `F` | Fit to view | `1`–`6` | Front/Back/Left/Right/Top/Bottom |
 | `R` | Reset camera | `H` | Toggle hydrogens |
 | `Space` | Pause / resume | `L` | Toggle atom labels |
-| `M` | Toggle measurement mode | | |
+| `M` | Toggle measurement mode | `P` | Toggle side panels |
+| `U` | Hide / show all controls | `Esc` | Restore controls |
+
+**Presentation mode** — the eye icon in the toolbar (or `U`) hides every panel and
+the toolbar, leaving just the molecule, its pedestal, and the plaque for a clean
+museum display; a small gear button (or `Esc`) brings the controls back. On
+phones and tablets the side panels collapse into a single slide-up sheet, and the
+camera framing is aspect-aware so the whole molecule stays in view in portrait.
 
 ---
 

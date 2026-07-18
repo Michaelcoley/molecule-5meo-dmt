@@ -34,7 +34,9 @@ export function App() {
   const [selectedBond, setSelectedBond] = useState<number | null>(null);
   const [measure, setMeasure] = useState<MeasureResult | null>(null);
   const [legend, setLegend] = useState<{ label: string; color: number }[]>([]);
-  const [panelsOpen, setPanelsOpen] = useState(true);
+  // Panels start collapsed on small screens so the model owns the viewport.
+  const [panelsOpen, setPanelsOpen] = useState(() => window.innerWidth > 1080);
+  const [uiHidden, setUiHidden] = useState(false);
   const [copied, setCopied] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -128,6 +130,7 @@ export function App() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === 'Escape') { setUiHidden(false); return; }
       switch (e.key.toLowerCase()) {
         case 'f': onFit(); break;
         case 'r': onReset(); break;
@@ -135,6 +138,8 @@ export function App() {
         case 'h': update({ showHydrogens: !settings.showHydrogens }); break;
         case 'l': update({ showAtomLabels: !settings.showAtomLabels }); break;
         case 'm': update({ measureMode: !settings.measureMode }); break;
+        case 'u': setUiHidden((v) => !v); break;
+        case 'p': setPanelsOpen((v) => !v); break;
         case '1': onView('front'); break;
         case '2': onView('back'); break;
         case '3': onView('left'); break;
@@ -166,30 +171,42 @@ SMILES    ${molecule.sdfText ? 'COc1ccc2c(c1)c(CCN(C)C)c[nH]2' : ''}`}
     );
   }
 
+  const panelsVisible = panelsOpen && !uiHidden;
+
   return (
-    <div ref={appRef} className={`app ${panelsOpen ? '' : 'panels-hidden'} bg-${settings.background}`}>
+    <div
+      ref={appRef}
+      className={`app ${panelsVisible ? '' : 'panels-hidden'} ${uiHidden ? 'ui-hidden' : ''} bg-${settings.background}`}
+    >
       <div className="stage-wrap">
         <div ref={stageRef} className="stage" tabIndex={0} aria-label="3D molecular viewport" />
         {settings.showPlaque && <Plaque />}
         {toast && <div className="toast" role="status">{toast}</div>}
       </div>
 
-      <Toolbar
-        autoRotate={settings.autoRotate}
-        paused={settings.paused}
-        cameraType={settings.cameraType}
-        onToggleRotate={() => update({ autoRotate: !settings.autoRotate })}
-        onTogglePause={() => update({ paused: !settings.paused })}
-        onToggleCamera={() => update({ cameraType: settings.cameraType === 'perspective' ? 'orthographic' : 'perspective' })}
-        onReset={onReset}
-        onFit={onFit}
-        onView={onView}
-        onFullscreen={onFullscreen}
-        onTogglePanels={() => setPanelsOpen((v) => !v)}
-      />
+      {!uiHidden && (
+        <Toolbar
+          autoRotate={settings.autoRotate}
+          paused={settings.paused}
+          cameraType={settings.cameraType}
+          panelsOpen={panelsOpen}
+          onToggleRotate={() => update({ autoRotate: !settings.autoRotate })}
+          onTogglePause={() => update({ paused: !settings.paused })}
+          onToggleCamera={() => update({ cameraType: settings.cameraType === 'perspective' ? 'orthographic' : 'perspective' })}
+          onReset={onReset}
+          onFit={onFit}
+          onView={onView}
+          onFullscreen={onFullscreen}
+          onTogglePanels={() => setPanelsOpen((v) => !v)}
+          onHideUI={() => setUiHidden(true)}
+        />
+      )}
 
-      {panelsOpen && (
-        <>
+      {panelsVisible && (
+        <div className="panels">
+          <button className="panels-close" aria-label="Close panels" onClick={() => setPanelsOpen(false)}>
+            ✕ Close
+          </button>
           <InfoPanel
             molecule={molecule}
             selectedAtom={selectedAtom}
@@ -199,7 +216,18 @@ SMILES    ${molecule.sdfText ? 'COc1ccc2c(c1)c(CCN(C)C)c[nH]2' : ''}`}
             copied={copied}
           />
           <SettingsPanel settings={settings} update={update} legend={legend} onExport={onExport} />
-        </>
+        </div>
+      )}
+
+      {uiHidden && (
+        <button
+          className="ui-restore"
+          aria-label="Show controls"
+          title="Show controls (Esc)"
+          onClick={() => setUiHidden(false)}
+        >
+          <span aria-hidden>⚙</span>
+        </button>
       )}
     </div>
   );
